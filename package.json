@@ -1,6 +1,6 @@
 {
   "name": "@emirayka/option",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Rust-like Option for typescript.",
   "keywords": [
     "typescript",

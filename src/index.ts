@@ -10,6 +10,14 @@ type OptionNone = {
 type OptionType<T> = OptionSome<T> |
   OptionNone
 
+const isSome = <T>(value: OptionType<T>): value is OptionSome<T> => {
+  return value.kind === 'some'
+}
+
+const isNone = <T>(value: OptionType<T>): value is OptionNone => {
+  return value.kind === 'none'
+}
+
 export class Option<T> {
   private readonly value: OptionType<T>
 
@@ -31,15 +39,15 @@ export class Option<T> {
   }
 
   isSome(): boolean {
-    return this.value.kind === 'some'
+    return isSome(this.value)
   }
 
   isNone(): boolean {
-    return this.value.kind === 'none'
+    return isNone(this.value)
   }
 
   unwrap(): T {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return this.value.value
     } else {
       throw new Error('Option.unwrap(): Unwrap of none value.')
@@ -47,13 +55,13 @@ export class Option<T> {
   }
 
   unwrapNone(): void {
-    if (this.value.kind !== 'none') {
+    if (isSome(this.value)) {
       throw new Error('Option.unwrapNone(): Expected none.')
     }
   }
 
   unwrapOr(defaultValue: T): T {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return this.value.value
     } else {
       return defaultValue
@@ -61,7 +69,7 @@ export class Option<T> {
   }
 
   unwrapOrElse(f: () => T): T {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return this.value.value
     } else {
       return f()
@@ -69,7 +77,7 @@ export class Option<T> {
   }
 
   expect(s: string): T {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return this.value.value
     } else {
       throw new Error(s)
@@ -77,13 +85,13 @@ export class Option<T> {
   }
 
   expectNone(s: string): void {
-    if (this.value.kind !== 'none') {
+    if (isSome(this.value)) {
       throw new Error(s)
     }
   }
 
   or(value2: Option<T>): Option<T> {
-    if (this.value.kind === 'none') {
+    if (isNone(this.value)) {
       return value2
     } else {
       return this
@@ -91,7 +99,7 @@ export class Option<T> {
   }
 
   orElse(f: () => Option<T>): Option<T> {
-    if (this.value.kind === 'none') {
+    if (isNone(this.value)) {
       return f()
     } else {
       return this
@@ -99,7 +107,7 @@ export class Option<T> {
   }
 
   and<T2>(value2: Option<T2>): Option<T2> {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return value2
     } else {
       return Option.none()
@@ -107,7 +115,7 @@ export class Option<T> {
   }
 
   andThen<T2>(f: (value: T) => Option<T2>): Option<T2> {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return f(this.value.value)
     } else {
       return Option.none()
@@ -115,11 +123,11 @@ export class Option<T> {
   }
 
   xor(another: Option<T>): Option<T> {
-    if (this.value.kind === 'some' && another.value.kind === 'none') {
+    if (isSome(this.value) && isNone(another.value)) {
       return this
     }
 
-    if (this.value.kind === 'none' && another.value.kind === 'some') {
+    if (isNone(this.value) && isSome(another.value)) {
       return another
     }
 
@@ -127,7 +135,7 @@ export class Option<T> {
   }
 
   map<T2>(f: (value: T) => T2): Option<T2> {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return Option.some(f(this.value.value))
     } else {
       return Option.none()
@@ -135,7 +143,7 @@ export class Option<T> {
   }
 
   mapOr<T2>(f: (value: T) => T2, defaultValue: T2): T2 {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return f(this.value.value)
     } else {
       return defaultValue
@@ -143,7 +151,7 @@ export class Option<T> {
   }
 
   mapOrElse<T2>(f: (value: T) => T2, defaultValueConstructor: () => T2): T2 {
-    if (this.value.kind === 'some') {
+    if (isSome(this.value)) {
       return f(this.value.value)
     } else {
       return defaultValueConstructor()
@@ -151,7 +159,7 @@ export class Option<T> {
   }
 
   filter(predicate: (t: T) => boolean): Option<T> {
-    if (this.value.kind === 'none') {
+    if (isNone(this.value)) {
       return Option.none()
     }
 
@@ -163,7 +171,7 @@ export class Option<T> {
   }
 
   zip<T2>(another: Option<T2>): Option<[T, T2]> {
-    if (this.value.kind === 'some' && another.value.kind === 'some') {
+    if (isSome(this.value) && isSome(another.value)) {
       return Option.some([this.value.value, another.value.value])
     } else {
       return Option.none()
@@ -171,7 +179,7 @@ export class Option<T> {
   }
 
   zipWith<T2, T3>(another: Option<T2>, f: (v1: T, v2: T2) => T3): Option<T3> {
-    if (this.value.kind === 'some' && another.value.kind === 'some') {
+    if (isSome(this.value) && isSome(another.value)) {
       return Option.some(f(this.value.value, another.value.value))
     } else {
       return Option.none()

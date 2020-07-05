@@ -279,7 +279,7 @@ describe('zip', () => {
     option1: Option<T1>,
     option2: Option<T2>,
     expected: Option<[T1, T2]>,
-  ) => {
+  ): void => {
     const result: Option<[T1, T2]> = option1.zip(option2)
 
     expect(result).toEqual(expected)
@@ -299,7 +299,7 @@ describe('zipWith', () => {
     option2: Option<T2>,
     f: (v1: T1, v2: T2) => T3,
     expected: Option<T3>,
-  ) => {
+  ): void => {
     const result: Option<T3> = option1.zipWith(option2, f)
 
     expect(result).toEqual(expected)

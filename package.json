@@ -26,7 +26,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.js",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
